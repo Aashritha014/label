@@ -1,0 +1,58 @@
+import java.security.*;
+import javax.crypto.Cipher;
+import java.util.Base64;
+
+public class RSAExample {
+
+    // Generate RSA Key Pair
+    public static KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048); // Key size
+        return keyPairGen.generateKeyPair();
+    }
+
+    // Encrypt data using public key
+    public static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    // Decrypt data using private key
+    public static String decrypt(String encryptedText, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+        return new String(decryptedBytes);
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Generate keys
+            KeyPair keyPair = generateKeyPair();
+            PublicKey publicKey = keyPair.getPublic();
+            PrivateKey privateKey = keyPair.getPrivate();
+
+            System.out.println("Public Key: " + Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+            System.out.println("Private Key: " + Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+
+            // Message
+            String message = "Hello, RSA Encryption!";
+            System.out.println("\nOriginal Message: " + message);
+
+            // Encrypt
+            String encryptedMessage = encrypt(message, publicKey);
+            System.out.println("Encrypted Message: " + encryptedMessage);
+
+            // Decrypt
+            String decryptedMessage = decrypt(encryptedMessage, privateKey);
+            System.out.println("Decrypted Message: " + decryptedMessage);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

@@ -1,0 +1,134 @@
+import java.util.*;
+
+/*
+ * Simple Intrusion Detection System (IDS)
+ *
+ * This program monitors network requests and checks:
+ * 1. Whether the source IP address is blacklisted.
+ * 2. Whether the destination port is suspicious.
+ *
+ * If any suspicious activity is found, an alert is generated.
+ */
+
+public class SimpleIDS {
+
+    // List of blacklisted/suspicious source IP addresses
+    static Set<String> suspiciousIPs = new HashSet<>(Arrays.asList(
+            "192.168.1.100",
+            "10.0.0.5"
+    ));
+
+    // List of suspicious ports
+    // 21 = FTP, 23 = Telnet, 4444 = Common backdoor port
+    static Set<Integer> suspiciousPorts = new HashSet<>(Arrays.asList(
+            21, 23, 4444
+    ));
+
+    /*
+     * Request class represents a network packet/request.
+     * It stores:
+     * - Source IP address
+     * - Destination IP address
+     * - Port number
+     */
+    static class Request {
+        String srcIp; // Source IP
+        String dstIp; // Destination IP
+        int port;     // Port number
+
+        // Constructor to initialize request details
+        Request(String s, String d, int p) {
+            srcIp = s;
+            dstIp = d;
+            port = p;
+        }
+
+        // Converts request object into a readable string
+        public String toString() {
+            return "{src=" + srcIp +
+                   ", dst=" + dstIp +
+                   ", port=" + port + "}";
+        }
+    }
+
+    /*
+     * analyze() checks whether a request is suspicious.
+     *
+     * Returns a list of alerts:
+     * - "Blacklisted source IP"
+     * - "Suspicious port"
+     */
+    public static List<String> analyze(Request r) {
+
+        // Store detected alerts
+        List<String> alerts = new ArrayList<>();
+
+        // Check if source IP is blacklisted
+        if (suspiciousIPs.contains(r.srcIp)) {
+            alerts.add("Blacklisted source IP");
+        }
+
+        // Check if port is suspicious
+        if (suspiciousPorts.contains(r.port)) {
+            alerts.add("Suspicious port");
+        }
+
+        // Return all generated alerts
+        return alerts;
+    }
+
+    public static void main(String[] args) {
+
+        /*
+         * Sample network requests
+         *
+         * Request 1:
+         * Normal IP and normal port
+         *
+         * Request 2:
+         * Blacklisted source IP
+         *
+         * Request 3:
+         * Suspicious port (Telnet)
+         */
+        List<Request> requests = Arrays.asList(
+
+                new Request("192.168.1.10",
+                            "10.0.0.1",
+                            80),
+
+                new Request("192.168.1.100",
+                            "10.0.0.1",
+                            80),
+
+                new Request("10.0.0.2",
+                            "10.0.0.1",
+                            23)
+        );
+
+        int i = 1;
+
+        // Analyze each request one by one
+        for (Request r : requests) {
+
+            // Get alerts generated for the request
+            List<String> alerts = analyze(r);
+
+            // Print request details
+            System.out.println("Request " + i++ + ": " + r);
+
+            // If no alerts exist, request is normal
+            if (alerts.isEmpty()) {
+                System.out.println("  Status: Normal");
+            }
+
+            // Otherwise print all detected alerts
+            else {
+                System.out.println(
+                        "  ALERT : " +
+                        String.join(", ", alerts)
+                );
+            }
+        }
+    }
+}

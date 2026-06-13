@@ -1,0 +1,67 @@
+import java.util.*;
+
+public class VigenereCipher {
+
+    // Generate repeating key
+    static String generateKey(String text, String key) {
+        StringBuilder newKey = new StringBuilder(key.toUpperCase());
+
+        while (newKey.length() < text.length()) {
+            newKey.append(newKey);
+        }
+
+        return newKey.substring(0, text.length());
+    }
+
+    // Encryption
+    static String encrypt(String text, String key) {
+        StringBuilder cipher = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char p = text.charAt(i);
+            char k = key.charAt(i);
+
+            int c = ((p - 'A') + (k - 'A')) % 26;
+            cipher.append((char) (c + 'A'));
+        }
+
+        return cipher.toString();
+    }
+
+    // Decryption
+    static String decrypt(String cipher, String key) {
+        StringBuilder plain = new StringBuilder();
+
+        for (int i = 0; i < cipher.length(); i++) {
+            char c = cipher.charAt(i);
+            char k = key.charAt(i);
+
+            int p = ((c - 'A') - (k - 'A') + 26) % 26;
+            plain.append((char) (p + 'A'));
+        }
+
+        return plain.toString();
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter plaintext: ");
+        String text = sc.nextLine().toUpperCase().replaceAll("[^A-Z]", "");
+
+        System.out.print("Enter key: ");
+        String key = sc.nextLine().toUpperCase();
+
+        String newKey = generateKey(text, key);
+
+        String cipher = encrypt(text, newKey);
+        String decrypted = decrypt(cipher, newKey);
+
+        System.out.println("Plaintext  : " + text);
+        System.out.println("Key        : " + newKey);
+        System.out.println("Ciphertext : " + cipher);
+        System.out.println("Decrypted  : " + decrypted);
+
+        sc.close();
+    }
+}

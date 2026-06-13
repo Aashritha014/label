@@ -1,0 +1,47 @@
+import java.util.*;
+
+public class CaesarCipher1 {
+
+    // Encryption method
+    public static String encrypt(String text, int shift) {
+        StringBuilder result = new StringBuilder();
+
+        for (char ch : text.toCharArray()) {
+            if (Character.isUpperCase(ch)) {
+                result.append((char) ((ch - 'A' + shift + 26) % 26 + 'A'));
+            } 
+            else if (Character.isLowerCase(ch)) {
+                result.append((char) ((ch - 'a' + shift + 26) % 26 + 'a'));
+            } 
+            else {
+                result.append(ch); // special characters unchanged
+            }
+        }
+        return result.toString();
+    }
+
+    // Decryption method
+    public static String decrypt(String text, int shift) {
+        return encrypt(text, -shift);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter text: ");
+        String plaintext = sc.nextLine();
+
+        System.out.print("Enter shift: ");
+        int shift = sc.nextInt();
+
+        String cipher = encrypt(plaintext, shift);
+        String decrypted = decrypt(cipher, shift);
+
+        System.out.println("Plaintext  : " + plaintext);
+        System.out.println("Shift      : " + shift);
+        System.out.println("Ciphertext : " + cipher);
+        System.out.println("Decrypted  : " + decrypted);
+
+        sc.close();
+    }
+}

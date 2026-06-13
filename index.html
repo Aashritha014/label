@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ISL Lab Manual</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#eef2ff,#f8fafc);
+}
+
+.container{
+    width:90%;
+    max-width:800px;
+    text-align:center;
+    background:rgba(255,255,255,0.8);
+    backdrop-filter:blur(10px);
+    padding:40px;
+    border-radius:24px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+h1{
+    color:#111827;
+    margin-bottom:10px;
+    font-size:2.5rem;
+}
+
+p{
+    color:#6b7280;
+    margin-bottom:35px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:15px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:#111827;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+    transition:all .3s ease;
+}
+
+button:hover{
+    transform:translateY(-4px);
+    background:#2563eb;
+}
+
+.toast{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#111827;
+    color:white;
+    padding:12px 18px;
+    border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    z-index:1000;
+    animation:fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+   
+
+    <div class="grid">
+        <button onclick="copyCode('exp1.txt')">Exp 01</button>
+        <button onclick="copyCode('exp2.txt')">Exp 02</button>
+        <button onclick="copyCode('exp3.txt')">Exp 03</button>
+        <button onclick="copyCode('exp4.txt')">Exp 04</button>
+        <button onclick="copyCode('exp5.txt')">Exp 05</button>
+        <button onclick="copyCode('exp6.txt')">Exp 06</button>
+        <button onclick="copyCode('exp7.txt')">Exp 07</button>
+        <button onclick="copyCode('exp8.txt')">Exp 08</button>
+        <button onclick="copyCode('exp9.txt')">Exp 09</button>
+        <button onclick="copyCode('exp10.txt')">Exp 10</button>
+    </div>
+
+</div>
+
+<script>
+
+async function copyCode(filename) {
+
+    console.log("Trying to load:", filename);
+
+    try {
+
+        const response = await fetch(`codes/${filename}`);
+
+        console.log("Response:", response);
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error ${response.status}`);
+        }
+
+        const code = await response.text();
+
+        console.log("File contents:", code);
+
+        await navigator.clipboard.writeText(code);
+
+        alert("Copied!");
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert(error.message);
+    }
+}
+
+</script>
+
+</body>
+</html>
