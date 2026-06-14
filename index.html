@@ -99,9 +99,12 @@ button:hover{
 
 <div class="container">
 
-   
+    <h1>ISL Lab Manual</h1>
+    <p>Open Manual or Copy Experiment Codes</p>
 
     <div class="grid">
+        <button onclick="openNotion()">Open</button>
+
         <button onclick="copyCode('exp1.txt')">Exp 01</button>
         <button onclick="copyCode('exp2.txt')">Exp 02</button>
         <button onclick="copyCode('exp3.txt')">Exp 03</button>
@@ -118,15 +121,18 @@ button:hover{
 
 <script>
 
-async function copyCode(filename) {
+function openNotion() {
+    window.open(
+        "https://blue-law-c6a.notion.site/f3a42842a0b4836581660167164cfcc3?v=54442842a0b48304b667883b4b7f6578",
+        "_blank"
+    );
+}
 
-    console.log("Trying to load:", filename);
+async function copyCode(filename) {
 
     try {
 
         const response = await fetch(`codes/${filename}`);
-
-        console.log("Response:", response);
 
         if (!response.ok) {
             throw new Error(`HTTP Error ${response.status}`);
@@ -134,18 +140,56 @@ async function copyCode(filename) {
 
         const code = await response.text();
 
-        console.log("File contents:", code);
+        try {
 
-        await navigator.clipboard.writeText(code);
+            await navigator.clipboard.writeText(code);
+            showToast("Copied!");
 
-        alert("Copied!");
+        } catch {
+
+            const textarea = document.createElement("textarea");
+
+            textarea.value = code;
+            textarea.setAttribute("readonly", "");
+
+            textarea.style.position = "absolute";
+            textarea.style.left = "-9999px";
+
+            document.body.appendChild(textarea);
+
+            textarea.select();
+            textarea.setSelectionRange(0, 999999);
+
+            const successful = document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            if (successful) {
+                showToast("Copied!");
+            } else {
+                throw new Error("Copy failed");
+            }
+        }
 
     } catch(error) {
 
         console.error(error);
+        showToast(error.message);
 
-        alert(error.message);
     }
+}
+
+function showToast(message) {
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 1500);
 }
 
 </script>
