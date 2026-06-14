@@ -1,0 +1,115 @@
+import re
+import math
+
+# Function to analyze password strength
+def analyze_password_strength(password):
+
+    # Initialize score and feedback list
+    score = 0
+    feedback = []
+
+    # ---------------------------------------------------
+    # 1. Length Check
+    # Longer passwords are generally more secure.
+    # ---------------------------------------------------
+    length = len(password)
+
+    if length >= 12:
+        score += 3
+    elif length >= 8:
+        score += 1
+    else:
+        return "Strength: Very Weak (Too Short)"
+
+    # ---------------------------------------------------
+    # 2. Character Diversity Check
+    # Checks for different character types:
+    # Uppercase, Lowercase, Numbers, Symbols
+    # ---------------------------------------------------
+
+    # Check for both uppercase and lowercase letters
+    if re.search(r"[a-z]", password) and re.search(r"[A-Z]", password):
+        score += 2
+    else:
+        feedback.append(
+            "Add both uppercase and lowercase letters."
+        )
+
+    # Check for numbers
+    if re.search(r"\d", password):
+        score += 2
+    else:
+        feedback.append("Add at least one number.")
+
+    # Check for special characters
+    if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        score += 2
+    else:
+        feedback.append("Add a special character.")
+
+    # ---------------------------------------------------
+    # 3. Entropy Calculation
+    #
+    # Entropy measures password randomness.
+    #
+    # Formula:
+    # Entropy = Length × log2(Character Set Size)
+    # ---------------------------------------------------
+
+    possible_chars = 0
+
+    # Add lowercase alphabet size
+    if re.search(r"[a-z]", password):
+        possible_chars += 26
+
+    # Add uppercase alphabet size
+    if re.search(r"[A-Z]", password):
+        possible_chars += 26
+
+    # Add digits
+    if re.search(r"\d", password):
+        possible_chars += 10
+
+    # Add special symbols
+    if re.search(r"[^a-zA-Z0-9]", password):
+        possible_chars += 32
+
+    # Calculate entropy in bits
+    entropy = (
+        length * math.log2(possible_chars)
+        if possible_chars > 0
+        else 0
+    )
+
+    # ---------------------------------------------------
+    # 4. Determine Final Strength
+    # ---------------------------------------------------
+
+    strength = "Weak"
+
+    if score >= 8 and entropy > 60:
+        strength = "Very Strong"
+
+    elif score >= 6 and entropy > 40:
+        strength = "Strong"
+
+    elif score >= 4:
+        strength = "Moderate"
+
+    # Return results as dictionary
+    return {
+        "Strength": strength,
+        "Entropy Bits": round(entropy, 2),
+        "Suggestions": feedback
+    }
+
+
+# ---------------------------------------------------
+# Example Usage
+# ---------------------------------------------------
+
+password = "C0mplex_Pass!2026"
+
+result = analyze_password_strength(password)
+
+print(result)

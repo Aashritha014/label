@@ -1,0 +1,177 @@
+import java.security.SecureRandom;
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.Base64;
+
+/*
+ * Simple Authentication System
+ *
+ * Features:
+ * 1. User Registration
+ * 2. Password Salting
+ * 3. SHA-256 Password Hashing
+ * 4. User Login Verification
+ */
+
+public class SimpleAuth {
+
+    /*
+     * User class stores:
+     * username
+     * salt
+     * hashed password
+     */
+    static class User {
+
+        String username;
+        String salt;
+        String hash;
+
+        User(String u, String s, String h) {
+            username = u;
+            salt = s;
+            hash = h;
+        }
+    }
+
+    // Simulated database using HashMap
+    static Map<String, User> users = new HashMap<>();
+
+    /*
+     * Generates a random 16-byte salt
+     */
+    public static String createSalt() {
+
+        byte[] salt = new byte[16];
+
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(salt);
+
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+    /*
+     * Hash password using SHA-256
+     * Salt + Password -> Hash
+     */
+    public static String hashPassword(
+            String password,
+            String salt) throws Exception {
+
+        MessageDigest md =
+                MessageDigest.getInstance("SHA-256");
+
+        md.update((salt + password).getBytes("UTF-8"));
+
+        byte[] digest = md.digest();
+
+        StringBuilder sb = new StringBuilder();
+
+        for (byte b : digest) {
+            sb.append(
+                    String.format("%02x", b)
+            );
+        }
+
+        return sb.toString();
+    }
+
+    /*
+     * Register a new user
+     */
+    public static void register(
+            String username,
+            String password) throws Exception {
+
+        // Check if username already exists
+        if (users.containsKey(username)) {
+
+            System.out.println(
+                    "Username already exists."
+            );
+
+            return;
+        }
+
+        // Generate salt
+        String salt = createSalt();
+
+        // Generate password hash
+        String hash =
+                hashPassword(password, salt);
+
+        // Store user details
+        users.put(
+                username,
+                new User(username, salt, hash)
+        );
+
+        System.out.println(
+                "User " + username + " registered."
+        );
+    }
+
+    /*
+     * Verify user login
+     */
+    public static void login(
+            String username,
+            String password) throws Exception {
+
+        // Username check
+        if (!users.containsKey(username)) {
+
+            System.out.println(
+                    "Invalid username."
+            );
+
+            return;
+        }
+
+        User u = users.get(username);
+
+        // Hash entered password
+        String hash =
+                hashPassword(password, u.salt);
+
+        // Compare hashes
+        if (hash.equals(u.hash)) {
+
+            System.out.println(
+                    "Login successful for "
+                            + username
+            );
+
+        } else {
+
+            System.out.println(
+                    "Login failed for "
+                            + username
+            );
+        }
+    }
+
+    public static void main(String[] args)
+            throws Exception {
+
+        // Register users
+        register("alice", "P@ss1234");
+        register("bob", "123456");
+
+        System.out.println(
+                "\n--- Login Attempts ---"
+        );
+
+        // Correct password
+        login("alice", "P@ss1234");
+
+        // Wrong password
+        login("alice", "wrong");
+
+        // Correct login
+        login("bob", "123456");
+
+        // Non-existing user
+        login("charlie", "anything");
+    }
+}

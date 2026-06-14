@@ -1,0 +1,176 @@
+import java.util.*;
+
+/*
+ * Simple Firewall Simulation
+ *
+ * This program filters incoming packets based on firewall rules.
+ * Each rule can ALLOW or DENY traffic based on:
+ * - Source IP Address
+ * - Port Number
+ * - Protocol (TCP/UDP)
+ */
+
+public class SimpleFirewall {
+
+    /*
+     * Rule class represents a firewall rule.
+     * action   = ALLOW or DENY
+     * ip       = Source IP to match
+     * port     = Port number to match
+     * protocol = Protocol to match
+     */
+    static class Rule {
+
+        String action;
+        String ip;
+        Integer port;
+        String protocol;
+
+        // Constructor
+        Rule(String action, String ip, Integer port, String protocol) {
+            this.action = action;
+            this.ip = ip;
+            this.port = port;
+            this.protocol = protocol;
+        }
+
+        /*
+         * Checks whether a packet matches this rule.
+         */
+        boolean matches(Packet p) {
+
+            // Check source IP
+            if (ip != null && !ip.equals(p.srcIp))
+                return false;
+
+            // Check port
+            if (port != null && !port.equals(p.port))
+                return false;
+
+            // Check protocol
+            if (protocol != null &&
+                !protocol.equalsIgnoreCase(p.protocol))
+                return false;
+
+            return true;
+        }
+    }
+
+    /*
+     * Packet class represents a network packet.
+     */
+    static class Packet {
+
+        String srcIp;
+        String dstIp;
+        String protocol;
+        int port;
+
+        Packet(String s, String d, int port, String proto) {
+            this.srcIp = s;
+            this.dstIp = d;
+            this.port = port;
+            this.protocol = proto;
+        }
+
+        public String toString() {
+            return "{src=" + srcIp +
+                   ", dst=" + dstIp +
+                   ", port=" + port +
+                   ", proto=" + protocol + "}";
+        }
+    }
+
+    /*
+     * Firewall Rules
+     *
+     * Rule 1:
+     * Deny packets from blacklisted IP
+     *
+     * Rule 2:
+     * Deny Telnet traffic (Port 23 TCP)
+     *
+     * Rule 3:
+     * Allow everything else
+     */
+    static List<Rule> rules = Arrays.asList(
+
+            new Rule(
+                    "DENY",
+                    "192.168.1.100",
+                    null,
+                    null
+            ),
+
+            new Rule(
+                    "DENY",
+                    null,
+                    23,
+                    "TCP"
+            ),
+
+            new Rule(
+                    "ALLOW",
+                    null,
+                    null,
+                    null
+            )
+    );
+
+    /*
+     * Checks packets against firewall rules.
+     * First matching rule determines action.
+     */
+    public static String filter(Packet p) {
+
+        for (Rule r : rules) {
+
+            if (r.matches(p))
+                return r.action;
+        }
+
+        // Default deny if no rule matches
+        return "DENY";
+    }
+
+    public static void main(String[] args) {
+
+        // Sample packets
+        List<Packet> packets = Arrays.asList(
+
+                // Blacklisted IP
+                new Packet(
+                        "192.168.1.100",
+                        "10.0.0.1",
+                        80,
+                        "TCP"
+                ),
+
+                // Telnet Traffic
+                new Packet(
+                        "192.168.1.10",
+                        "10.0.0.1",
+                        23,
+                        "TCP"
+                ),
+
+                // Normal HTTPS Traffic
+                new Packet(
+                        "192.168.1.20",
+                        "10.0.0.1",
+                        443,
+                        "TCP"
+                )
+        );
+
+        // Process packets
+        for (Packet p : packets) {
+
+            System.out.println("Packet: " + p);
+
+            System.out.println(
+                    "  Action: " + filter(p)
+            );
+        }
+    }
+}
